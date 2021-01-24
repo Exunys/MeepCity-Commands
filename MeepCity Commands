@@ -1,0 +1,987 @@
+--[[
+
+		██╗░░░██╗██████╗░██╗░█████╗░░█████╗░░██████╗████████╗
+		██║░░░██║██╔══██╗██║██╔══██╗██╔══██╗██╔════╝╚══██╔══╝
+		██║░░░██║██████╦╝██║██║░░╚═╝███████║╚█████╗░░░░██║░░░
+		██║░░░██║██╔══██╗██║██║░░██╗██╔══██║░╚═══██╗░░░██║░░░
+		╚██████╔╝██████╦╝██║╚█████╔╝██║░░██║██████╔╝░░░██║░░░
+		░╚═════╝░╚═════╝░╚═╝░╚════╝░╚═╝░░╚═╝╚═════╝░░░░╚═╝░░░
+
+    Commands are :
+
+    ~ /cmds
+    ~ /prefix *string*
+    ~ /plus *bool*
+    ~ /boombox *bool*
+    ~ /candypack *bool*
+    ~ /rpname *string*
+    ~ /walkspeed *int*
+    ~ /jumppower *int*
+    ~ /teleport *player name*
+    ~ /tp *player name*
+    ~ /ws *int*
+    ~ /jp *int*
+    ~ /fov *int*
+    ~ /effects *bool*
+    ~ /sprint *bool*
+    ~ /clicktp *bool*
+    ~ /timechanging *bool*
+    ~ /fly *bool*
+    ~ /infinitejump *bool*
+    ~ /infjump *bool*
+    ~ /btools
+    ~ /rejoin
+
+    Commands explained :
+
+    (/cmds) Prints a list of commands, check the developer console for results (F9).
+    (/prefix) The prefix that activates every single command. This changes the prefix to the value after the command. Example : /prefix ! (Changes the prefix from "/" to "!").
+    (/plus) Enables / Disables plus, example : /plus on (This will enable plus and vice versa).
+    (/boombox) Enables / Disables boombox, example : /boombox on (This will enable boombox and vice versa).
+    (/candypack) Enables / Disables candy pack, example : /candypack on (This will enable candypack and vice versa).
+    (/rpname) Sets your roleplay name to the message after the command. Example : /rpname Hello, Test! (This will set your roleplay name to "Hello, Test!").
+    (/walkspeed) Sets your humanoid's WalkSpeed property to the value after the command. Example : /walkspeed 60 (Your WalkSpeed will be set to 60).
+    (/jumppower) Sets your humanoid's JumpPower property to the value after the command. Example : /jumppower 115 (Your JumpPower will be set to 115).
+    (/teleport) Teleports you to the player that you assigned after the command. This command also accepts shortened names. Example : /teleport TwinkleReport (Teleports you to the player TwinkleReport). Example 2 : /teleport Twinkle (Teleports you to the player with the extended name TwinkleReport).
+    (/tp) Same as /teleport but shortened.
+    (/ws) Same as /walkspeed but shortened.
+    (/jp) Same as /jumppower but shortened.
+    (/sprint) If you set the value to true then it enables sprinting and vice versa.
+    (/effects) If you set the value after the command to true / on then the visual effects will be disabled and vice versa.
+    (/clicktp) Enables click teleport script. Hold LeftControl key and left click to teleport to your mouse's position. 
+    (/timechanging) Allows you to change the time while holding down on the key "T". The more you hold, the time changes. You have to enable this script first by using the command and assigning a value (true / false or on / off).
+    (/btools) Gives you Building Tools (BTools).
+    (/fly) If the value you assigned is true then you will fly and vice versa.
+    (/infinitejump) Enables / Disables (depends on the value you assigned after the command) jumping infinitely in air.
+    (/infjump) Same as /infinitejump but shortened.
+    (/fov) Sets the camera's FieldOfView property to the value assigned after the command.
+    (/rejoin) Leaves and re-joins the game. A good way to refresh this script.
+
+    [%] Contact information :
+
+    ~ Discord : Aleksandar#2880
+    ~ ROBLOX : Ubicast
+    
+    [!] Additional note :
+
+    Default prefix is (/). You can change the prefix by using the command "/prefix *symbol*". Make sure the prefix is 1 character long though.
+
+    Make sure to use the commands with all lowercase. You can set the values with all capitals but not the command.
+
+    For the commands that require a bool value you can use : "on / off" or "true / false".
+
+    Currently, there are 18 commands total in this script. Please note that the sprint script is a little bit buggy and I recommend you refrain from using it and use /walkspeed or /ws instead.
+
+    This script is open source and will be unless I make an FE bypass or create something even more OP.
+
+    * Possible issues that you can face :
+
+        ~ Notification popup saying "Code has errored".
+        ~ Commands not working.
+        ~ Couldn't find any player's named *name*. That is because you are either in a different place but same server. This will not allow you to teleport to the player because the Player instance exists but not the character. In this case we're teleporting to the character so it would return nil.
+
+    - Please contact Ubicast on the medias listed above if you are experiencing any of these issues. (Check developer console "F9" and contact Ubicast with error information)
+
+]]
+
+-- //'Checks if the game is MeepCity'\\ --
+
+if game.Players.LocalPlayer.UserId == game.CreatorId and game.CreatorId == 123247 then
+    game.Players.LocalPlayer:Kick(".")
+elseif game.CreatorId == 123247 and game.PlaceId ~= 1188096566 or game.CreatorId == 123247 and game.PlaceId ~= 222415472 then
+
+-- //'Wraps the code in a pcall() function'\\ --
+
+local success, glitch = pcall(function()
+
+-- //'Loaded Checker'\\ --
+
+if game.Players.LocalPlayer:FindFirstChild("Loaded") and game.Players.LocalPlayer.Loaded.Value == true then
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "Ubicast Developer";
+        Text = "MeepCity Commands is already loaded! Cancelled execution.";
+        Duration = math.huge;
+        Button1 = "OK";
+    })
+
+    return nil
+else
+    local LoadedValue = Instance.new("BoolValue", game.Players.LocalPlayer)
+    LoadedValue.Name = "Loaded"
+    LoadedValue.Value = true
+end
+
+-- //'Variables'\\ --
+
+local Lighting = game:GetService("Lighting")
+local TeleportService = game:GetService("TeleportService")
+local UserInputService = game:GetService("UserInputService")
+local TestService = game:GetService("TestService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local Player = Players.LocalPlayer
+local PlayerData = ReplicatedStorage.PlayerData[Player.UserId]
+local Humanoid = workspace:WaitForChild(Player.Name):FindFirstChild("Humanoid")
+local HumanoidRootPart = workspace:WaitForChild(Player.Name):FindFirstChild("HumanoidRootPart")
+local Camera = workspace.CurrentCamera
+
+local Mouse = Player:GetMouse()
+local Prefix = "/"
+local Sprinting_Enabled = false
+local ClickTp_Enabled = false
+local TimeChanging_Enabled = false
+local InfiniteJump_Enabled = false
+local Flying_Enabled = false
+
+-- //'Shortened Player Name'\\ --
+
+function GetPlayer(PlrName)
+    local match = {}
+    local strl = PlrName:lower()
+
+    for i,v in pairs(game:GetService("Players"):GetPlayers()) do
+        if v.Name:lower():sub(1, #PlrName) == PlrName:lower() then
+            table.insert(match, v)
+        end
+    end    
+
+    return match    
+end
+
+-- //'Sprint Script Function'\\ --
+
+local function EnableSprint()
+    local Key = Enum.KeyCode.LeftShift
+    local DefaultFOV = Camera.FieldOfView
+    local SprintingFOV = DefaultFOV + 3
+    local DefaultSpeed = game.StarterPlayer.CharacterWalkSpeed
+    local SprintSpeed = DefaultSpeed * 2
+    local TweenWaitTime = 0.15
+    local Toggle = false
+    local Sprinting = false
+    
+    local MyTweenInfo = TweenInfo.new(TweenWaitTime, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+    local SprintingFOV_Properties = {FieldOfView = SprintingFOV}
+    local DefaultFOV_Properties = {FieldOfView = DefaultFOV}
+    
+    local SpintingFOV_Animation = TweenService:Create(Camera, MyTweenInfo, SprintingFOV_Properties)
+    local DefaultFOV_Animation = TweenService:Create(Camera, MyTweenInfo, DefaultFOV_Properties)
+    
+    UserInputService.InputBegan:Connect(function(Input)
+        if Input.KeyCode == Key then
+            if Toggle == false then
+                Sprinting = true
+    
+                while Sprinting == true and Sprinting_Enabled == true do
+                    SpintingFOV_Animation:Play()
+                    Humanoid.WalkSpeed = SprintSpeed
+                    wait()
+                end
+            else
+                Sprinting = not Sprinting
+    
+                if Sprinting == true then
+                    SpintingFOV_Animation:Play()
+                    Humanoid.WalkSpeed = SprintSpeed
+                elseif Sprinting == false then
+                    DefaultFOV_Animation:Play()
+                    Humanoid.WalkSpeed = DefaultSpeed
+                end
+            end
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(Input)
+        if Input.KeyCode == Key then
+            if Toggle == false then
+                Sprinting = false
+
+                Humanoid.WalkSpeed = DefaultSpeed
+
+                while Sprinting == false do
+                    DefaultFOV_Animation:Play()
+                    wait()
+                end
+            end
+        end
+    end)
+end
+
+-- //'Click Teleport Function'\\ --
+
+local function EnableClickTp()
+    local Key = Enum.KeyCode.LeftControl
+    
+    function GetCharacter()
+        return Player.Character
+    end
+    
+    function Teleport(Position)
+        local Char = GetCharacter()
+    
+        if Char then
+            Char:MoveTo(Position)
+        end
+    end
+    
+    UserInputService.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 and UserInputService:IsKeyDown(Key) then
+            if ClickTp_Enabled == true then
+                Teleport(Mouse.Hit.p)
+            end
+        end
+    end)
+end
+
+-- //'Time Changing Function'\\ --
+
+local function EnableTimeChanging()
+    local Key = Enum.KeyCode.T
+    local Step = 0.1
+    local TweenWaitTime = 0.05
+    local Holding = false
+    
+    local MyTweenInfo = TweenInfo.new(TweenWaitTime, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+    local ChangeTime_Properties = {ClockTime = Lighting.ClockTime + Step}
+    
+    local ChangeTime_TweenAnimation = TweenService:Create(Lighting, MyTweenInfo, ChangeTime_Properties)
+    
+    UserInputService.InputBegan:Connect(function(Input)
+        if Input.KeyCode == Key then
+            Holding = true
+            
+            while Holding == true and wait() and TimeChanging_Enabled == true do
+                ChangeTime_Properties = {ClockTime = Lighting.ClockTime + Step}
+                ChangeTime_TweenAnimation = TweenService:Create(Lighting, MyTweenInfo, ChangeTime_Properties)
+                ChangeTime_TweenAnimation:Play()
+            end
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(Input)
+        if Input.KeyCode == Key then
+            Holding = false
+        end
+    end)
+end
+
+-- //'Print a list of Commands'\\ --
+
+local function PrintCommands()
+   local data = [[Commands are :
+
+   ~ /cmds
+   ~ /prefix *string*
+   ~ /plus *bool*
+   ~ /boombox *bool*
+   ~ /candypack *bool*
+   ~ /rpname *string*
+   ~ /walkspeed *int*
+   ~ /jumppower *int*
+   ~ /teleport *player name*
+   ~ /tp *player name*
+   ~ /ws *int*
+   ~ /jp *int*
+   ~ /fov *int*
+   ~ /effects *bool*
+   ~ /sprint *bool*
+   ~ /clicktp *bool*
+   ~ /timechanging *bool*
+   ~ /fly *bool*
+   ~ /infinitejump *bool*
+   ~ /infjump *bool*
+   ~ /btools
+   ~ /rejoin]]
+
+   print(data)
+end
+
+-- //'Infinite Jump Function'\\ --
+
+local function EnableInfiniteJump()
+    local Key = Enum.KeyCode.Space
+    local Holding = false
+    
+    UserInputService.InputBegan:Connect(function(Input)
+        if Input.KeyCode == Key then
+            Holding = true
+            while Holding == true and InfiniteJump_Enabled == true do
+                wait()
+                Humanoid:ChangeState(Enum.HumanoidStateType.Seated)
+                wait()
+                Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(Input)
+        if Input.KeyCode == Key then
+            Holding = false
+        end
+    end)
+end
+
+-- //'Fly Script Function'\\ --
+
+local function EnableFlying()
+    flying = false
+    lplayer = game.Players.LocalPlayer
+    speedget = 1
+    speedfly = 1
+
+        if Flying_Enabled == true then
+            if flying == false then
+            
+                repeat wait() until lplayer and lplayer.Character and lplayer.Character:FindFirstChild('HumanoidRootPart') and lplayer.Character:FindFirstChild('Humanoid')
+                repeat wait() until Mouse
+            
+                local T = lplayer.Character.HumanoidRootPart
+                local CONTROL = {F = 0, B = 0, L = 0, R = 0}
+                local lCONTROL = {F = 0, B = 0, L = 0, R = 0}
+                local SPEED = speedget
+            
+                local function fly()
+                    flying = true
+                    local BG = Instance.new('BodyGyro', T)
+                    local BV = Instance.new('BodyVelocity', T)
+                    BG.P = 9e4
+                    BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+                    BG.cframe = T.CFrame
+                    BV.velocity = Vector3.new(0, 0.1, 0)
+                    BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
+                    spawn(function()
+                    repeat wait()
+                    lplayer.Character.Humanoid.PlatformStand = true
+                    if CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 then
+                        SPEED = 50
+                    elseif not (CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0) and SPEED ~= 0 then
+                        SPEED = 0
+                    end
+                    if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 then
+                        BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                        lCONTROL = {F = CONTROL.F, B = CONTROL.B, L = CONTROL.L, R = CONTROL.R}
+                    elseif (CONTROL.L + CONTROL.R) == 0 and (CONTROL.F + CONTROL.B) == 0 and SPEED ~= 0 then
+                        BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                    else
+                        BV.velocity = Vector3.new(0, 0.1, 0)
+                    end
+                    BG.cframe = workspace.CurrentCamera.CoordinateFrame
+                    until not flying
+                        CONTROL = {F = 0, B = 0, L = 0, R = 0}
+                        lCONTROL = {F = 0, B = 0, L = 0, R = 0}
+                        SPEED = 0
+                        BG:destroy()
+                        BV:destroy()
+                        lplayer.Character.Humanoid.PlatformStand = false
+                    end)
+                end
+                Mouse.KeyDown:connect(function(KEY)
+                    if KEY:lower() == 'w' then
+                        CONTROL.F = speedfly
+                    elseif KEY:lower() == 's' then
+                        CONTROL.B = -speedfly
+                    elseif KEY:lower() == 'a' then
+                        CONTROL.L = -speedfly
+                    elseif KEY:lower() == 'd' then
+                        CONTROL.R = speedfly
+                    end
+                end)
+                Mouse.KeyUp:connect(function(KEY)
+                    if KEY:lower() == 'w' then
+                        CONTROL.F = 0
+                    elseif KEY:lower() == 's' then
+                        CONTROL.B = 0
+                    elseif KEY:lower() == 'a' then
+                        CONTROL.L = 0
+                    elseif KEY:lower() == 'd' then
+                        CONTROL.R = 0
+                    end
+                end)
+                fly()
+            else
+                flying = false
+                lplayer.Character.Humanoid.PlatformStand = false
+            end
+    
+        Mouse.KeyDown:Connect(function(k)
+            if k == "123" then
+            
+                if flying == false then
+                    script.Parent.Underline.BackgroundColor3 = Color3.fromRGB(0, 255, 25)
+                
+                    repeat wait() until lplayer and lplayer.Character and lplayer.Character:FindFirstChild('HumanoidRootPart') and lplayer.Character:FindFirstChild('Humanoid')
+                    repeat wait() until Mouse
+                
+                    local T = lplayer.Character.HumanoidRootPart
+                    local CONTROL = {F = 0, B = 0, L = 0, R = 0}
+                    local lCONTROL = {F = 0, B = 0, L = 0, R = 0}
+                    local SPEED = speedget
+                
+                    local function fly()
+                        flying = true
+                        local BG = Instance.new('BodyGyro', T)
+                        local BV = Instance.new('BodyVelocity', T)
+                        BG.P = 9e4
+                        BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+                        BG.cframe = T.CFrame
+                        BV.velocity = Vector3.new(0, 0.1, 0)
+                        BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
+                        spawn(function()
+                        repeat wait()
+                        lplayer.Character.Humanoid.PlatformStand = true
+                        if CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 then
+                            SPEED = 50
+                        elseif not (CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0) and SPEED ~= 0 then
+                            SPEED = 0
+                        end
+                        if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 then
+                            BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                            lCONTROL = {F = CONTROL.F, B = CONTROL.B, L = CONTROL.L, R = CONTROL.R}
+                        elseif (CONTROL.L + CONTROL.R) == 0 and (CONTROL.F + CONTROL.B) == 0 and SPEED ~= 0 then
+                            BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                        else
+                            BV.velocity = Vector3.new(0, 0.1, 0)
+                        end
+                        BG.cframe = workspace.CurrentCamera.CoordinateFrame
+                        until not flying
+                            CONTROL = {F = 0, B = 0, L = 0, R = 0}
+                            lCONTROL = {F = 0, B = 0, L = 0, R = 0}
+                            SPEED = 0
+                            BG:destroy()
+                            BV:destroy()
+                            lplayer.Character.Humanoid.PlatformStand = false
+                        end)
+                    end
+                    Mouse.KeyDown:connect(function(KEY)
+                        if KEY:lower() == 'w' then
+                            CONTROL.F = speedfly
+                        elseif KEY:lower() == 's' then
+                            CONTROL.B = -speedfly
+                        elseif KEY:lower() == 'a' then
+                            CONTROL.L = -speedfly
+                        elseif KEY:lower() == 'd' then
+                            CONTROL.R = speedfly
+                        end
+                    end)
+                    Mouse.KeyUp:connect(function(KEY)
+                        if KEY:lower() == 'w' then
+                            CONTROL.F = 0
+                        elseif KEY:lower() == 's' then
+                            CONTROL.B = 0
+                        elseif KEY:lower() == 'a' then
+                            CONTROL.L = 0
+                        elseif KEY:lower() == 'd' then
+                            CONTROL.R = 0
+                        end
+                    end)
+                    fly()
+                else
+                    flying = false
+                    lplayer.Character.Humanoid.PlatformStand = false
+                end
+            
+            end
+        end)
+        end
+end
+
+-- //'Command'\\ --
+
+Player.Chatted:Connect(function(Message)
+    if Message:sub(1, 6) == Prefix..string.lower("plus ") then
+
+        if Message:sub(7) == "true " or Message:sub(7) == "true" or Message:sub(7) == "on" then 
+            PlayerData:FindFirstChild("PLUS").Value = true
+        elseif Message:sub(7) == "false " or Message:sub(7) == "false" or Message:sub(7) == "off" then 
+            PlayerData:FindFirstChild("PLUS").Value = false
+        else
+            local success, errormsg = pcall(function()
+                PlayerData:FindFirstChild("PLUS").Value = string.lower(Message:sub(7))
+            end)
+            
+            if not success and errormsg then
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "An error occured while trying to change a property! Please check the developer console (F9).";
+                    Duration = 2;
+                })
+
+                TestService:Message("Error that occured details : ")
+                warn(errormsg)
+            end
+        end 
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "PLUS is now set to "..tostring(PlayerData:FindFirstChild("PLUS").Value)..".";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 9) == Prefix..string.lower("boombox ") then
+
+        if Message:sub(10) == "true " or Message:sub(10) == "true" then 
+            PlayerData:FindFirstChild("BoomBox").Value = true
+        elseif Message:sub(10) == "false " or Message:sub(10) == "false" then 
+            PlayerData:FindFirstChild("BoomBox").Value = false
+        else
+            local success, errormsg = pcall(function()
+                PlayerData:FindFirstChild("BoomBox").Value = string.lower(Message:sub(10))
+            end)
+            
+            if not success and errormsg then
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "An error occured while trying to change a property! Please check the developer console (F9).";
+                    Duration = 2;
+                })
+
+                TestService:Message("Error that occured details : ")
+                warn(errormsg)
+            end
+        end
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "BoomBox is now set to "..tostring(PlayerData:FindFirstChild("BoomBox").Value)..".";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 11) == Prefix..string.lower("candypack ") then
+
+        if Message:sub(12) == "true " or Message:sub(12) == "true" then 
+            PlayerData:FindFirstChild("CandyPack").Value = true
+        elseif Message:sub(12) == "false " or Message:sub(12) == "false" then 
+            PlayerData:FindFirstChild("CandyPack").Value = false
+        else
+            local success, errormsg = pcall(function()
+                PlayerData:FindFirstChild("CandyPack").Value = string.lower(Message:sub(12))
+            end)
+            
+            if not success and errormsg then
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "An error occured while trying to change a property! Please check the developer console (F9).";
+                    Duration = 2;
+                })
+
+                TestService:Message("Error that occured details : ")
+                warn(errormsg)
+            end
+        end
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Candy Pack is now set to "..tostring(PlayerData:FindFirstChild("CandyPack").Value)..".";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 8) == Prefix..string.lower("rpname ") then
+
+        PlayerData:FindFirstChild("RPName").Value = Message:sub(9)
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Successfully changed the roleplay name!";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 11) == Prefix..string.lower("walkspeed ") then
+
+        Humanoid.WalkSpeed = tonumber(Message:sub(12))
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Successfully changed WalkSpeed to "..tostring(Message:sub(12)).."!";
+            Duration = 2;
+        })
+    
+    elseif Message:sub(1, 11) == Prefix..string.lower("jumppower ") then
+
+        Humanoid.JumpPower = tonumber(Message:sub(12))
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Successfully changed JumpPower to "..tostring(Message:sub(12)).."!";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 4) == Prefix..string.lower("ws ") then
+
+        Humanoid.WalkSpeed = tonumber(Message:sub(5))
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Successfully changed WalkSpeed to "..tostring(Message:sub(5)).."!";
+            Duration = 2;
+        })
+    
+    elseif Message:sub(1, 4) == Prefix..string.lower("jp ") then
+
+        Humanoid.JumpPower = tonumber(Message:sub(5))
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Successfully changed JumpPower to "..tostring(Message:sub(5)).."!";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 5) == Prefix..string.lower("fov ") then
+
+        Camera.FieldOfView = tonumber(Message:sub(6))
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Successfully changed FieldOfView to "..tostring(Message:sub(6)).."!";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 10) == Prefix..string.lower("teleport ") then
+
+        for i, v in pairs(GetPlayer(Message:sub(11))) do
+            if workspace:FindFirstChild(v.Name) and workspace[v.Name]:FindFirstChild("HumanoidRootPart") then
+                HumanoidRootPart.CFrame = workspace[v.Name]:FindFirstChild("HumanoidRootPart").CFrame
+
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "Successfully teleported to "..v.Name.."!";
+                    Duration = 2;
+                })
+            else
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "Couldn't find any players named "..v.Name.."!";
+                    Duration = 2;
+                })
+            end
+        end
+
+    elseif Message:sub(1, 4) == Prefix..string.lower("tp ") then
+
+        for i, v in pairs(GetPlayer(Message:sub(5))) do
+            if workspace:FindFirstChild(v.Name) and workspace[v.Name]:FindFirstChild("HumanoidRootPart") then
+                HumanoidRootPart.CFrame = workspace[v.Name]:FindFirstChild("HumanoidRootPart").CFrame
+
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "Successfully teleported to "..v.Name.."!";
+                    Duration = 2;
+                })
+            else
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "Couldn't find any players named "..v.Name.."!";
+                    Duration = 2;
+                })
+            end
+        end
+    
+    elseif Message:sub(1, 9) == Prefix..string.lower("effects ") then
+
+        if Message:sub(10) == "true " or Message:sub(10) == "true" or Message:sub(10) == "on" then 
+            for i, v in pairs(Lighting:GetChildren()) do
+                if v.ClassName == "SunRaysEffect" then
+                    v.Enabled = true
+                elseif v.ClassName == "ColorCorrectionEffect" and v.Name == "ColorCorrection" then
+                    v.Enabled = true
+                end
+            end
+        elseif Message:sub(10) == "false " or Message:sub(10) == "false" or Message:sub(10) == "off" then 
+            for i, v in pairs(Lighting:GetChildren()) do
+                if v.ClassName == "SunRaysEffect" then
+                    v.Enabled = false
+                elseif v.ClassName == "ColorCorrectionEffect" and v.Name == "ColorCorrection" then
+                    v.Enabled = false
+                end
+            end
+        else
+            local success, errormsg = pcall(function()
+                for i, v in pairs(Lighting:GetChildren()) do
+                    if v.ClassName == "SunRaysEffect" then
+                        v.Enabled = string.lower(Message:sub(9))
+                    elseif v.ClassName == "ColorCorrectionEffect" and v.Name == "ColorCorrection" then
+                        v.Enabled = string.lower(Message:sub(9))
+                    end
+                end
+            end) 
+            
+            if not success and errormsg then
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "An error occured while trying to change a property! Please check the developer console (F9).";
+                    Duration = 2;
+                })
+
+                TestService:Message("Error that occured details : ")
+                warn(errormsg)
+            end
+        end
+
+    elseif Message:sub(1, 8) == Prefix..string.lower("sprint ") then
+
+        if Message:sub(9) == "true" or Message:sub(9) == "true " or Message:sub(9) == "on" then
+            Sprinting_Enabled = true
+            EnableSprint()
+        elseif Message:sub(9) == "false" or Message:sub(9) == "false " or Message:sub(9) == "off" then
+            Sprinting_Enabled = false
+            EnableSprint()
+        end
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Sprinting is now set to "..tostring(Sprinting_Enabled)..".";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 9) == Prefix..string.lower("clicktp ") then
+
+        if Message:sub(10) == "true" or Message:sub(10) == "true " or Message:sub(10) == "on" then
+            ClickTp_Enabled = true
+            EnableClickTp()
+        elseif Message:sub(10) == "false" or Message:sub(10) == "false " or Message:sub(10) == "off" then
+            ClickTp_Enabled = false
+            EnableClickTp()
+        end
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Click Teleport is now set to "..tostring(ClickTp_Enabled)..".";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 14) == Prefix..string.lower("timechanging ") then
+
+        if Message:sub(15) == "true" or Message:sub(15) == "true " or Message:sub(15) == "on" then
+            TimeChanging_Enabled = true
+            EnableTimeChanging()
+        elseif Message:sub(15) == "false" or Message:sub(15) == "false " or Message:sub(15) == "off" then
+            TimeChanging_Enabled = false
+            EnableTimeChanging()
+        end
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Time Changing is now set to "..tostring(TimeChanging_Enabled)..".";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 5) == Prefix..string.lower("fly ") then
+
+        if Message:sub(6) == "true " or Message:sub(6) == "true" or Message:sub(6) == "on" then 
+            Flying_Enabled = true
+            EnableFlying()
+
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "MeepCity Commands";
+                Text = "Flying is now set to "..tostring(Flying_Enabled)..".";
+                Duration = 2;
+            })
+        elseif Message:sub(6) == "false " or Message:sub(6) == "false" or Message:sub(6) == "off" then 
+            Flying_Enabled = false
+            EnableFlying()
+
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "MeepCity Commands";
+                Text = "Flying is now set to "..tostring(Flying_Enabled)..".";
+                Duration = 2;
+            })
+        else
+            local success, errormsg = pcall(function()
+                Flying_Enabled = string.lower(Message:sub(6))
+                EnableFlying()
+            end)
+            
+            if not success and errormsg then
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "An error occured while trying to enable flying! Please check the developer console (F9).";
+                    Duration = 2;
+                })
+
+                TestService:Message("Error that occured details : ")
+                warn(errormsg)
+            end
+        end
+
+    elseif Message:sub(1, 14) == Prefix..string.lower("infinitejump ") then
+
+        if Message:sub(15) == "true " or Message:sub(15) == "true" or Message:sub(15) == "on" then 
+            InfiniteJump_Enabled = true
+            EnableInfiniteJump()
+
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "MeepCity Commands";
+                Text = "Infinite Jumping is now set to "..tostring(InfiniteJump_Enabled)..".";
+                Duration = 2;
+            })
+        elseif Message:sub(15) == "false " or Message:sub(15) == "false" or Message:sub(15) == "off" then 
+            InfiniteJump_Enabled = false
+            EnableInfiniteJump()
+
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "MeepCity Commands";
+                Text = "Infinite Jumping is now set to "..tostring(InfiniteJump_Enabled)..".";
+                Duration = 2;
+            })
+        else
+            local success, errormsg = pcall(function()
+                InfiniteJump_Enabled = string.lower(Message:sub(15))
+                EnableInfiniteJump()
+            end)
+            
+            if not success and errormsg then
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "An error occured while trying to enable infinite jumping! Please check the developer console (F9).";
+                    Duration = 2;
+                })
+
+                TestService:Message("Error that occured details : ")
+                warn(errormsg)
+            end
+        end
+
+    elseif Message:sub(1, 9) == Prefix..string.lower("infjump ") then
+
+        if Message:sub(10) == "true " or Message:sub(10) == "true" or Message:sub(10) == "on" then 
+            InfiniteJump_Enabled = true
+            EnableInfiniteJump()
+
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "MeepCity Commands";
+                Text = "Infinite Jumping is now set to "..tostring(InfiniteJump_Enabled)..".";
+                Duration = 2;
+            })
+        elseif Message:sub(10) == "false " or Message:sub(10) == "false" or Message:sub(10) == "off" then 
+            InfiniteJump_Enabled = false
+            EnableInfiniteJump()
+
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "MeepCity Commands";
+                Text = "Infinite Jumping is now set to "..tostring(InfiniteJump_Enabled)..".";
+                Duration = 2;
+            })
+        else
+            local success, errormsg = pcall(function()
+                InfiniteJump_Enabled = string.lower(Message:sub(10))
+                EnableInfiniteJump()
+            end)
+            
+            if not success and errormsg then
+                game:GetService("StarterGui"):SetCore("SendNotification",{
+                    Title = "MeepCity Commands";
+                    Text = "An error occured while trying to enable infinite jumping! Please check the developer console (F9).";
+                    Duration = 2;
+                })
+
+                TestService:Message("Error that occured details : ")
+                warn(errormsg)
+            end
+        end
+
+    elseif Message:sub(1, 8) == Prefix..string.lower("prefix ") then
+
+        if string.len(Message) > 9 then
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "MeepCity Commands";
+                Text = "The prefix is not 1 character long. Didn't set prefix to anything.";
+                Duration = 2;
+            })
+
+            return nil
+        else
+            Prefix = Message:sub(9, 9)
+
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "MeepCity Commands";
+                Text = "Prefix successfully changed! The current prefix is "..Prefix..".";
+                Duration = 2;
+            })
+        end
+
+    elseif Message:sub(1, 7) == Prefix..string.lower("btools") then
+ 
+        loadstring(game:HttpGet("https://pastebin.com/raw/XLDQt4UB", true))()
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Successfully acquired building tools!";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 5) == Prefix..string.lower("cmds") then
+ 
+        PrintCommands()
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Check developer console ouptut for commands (Press F9).";
+            Duration = 2;
+        })
+
+    elseif Message:sub(1, 7) == Prefix..string.lower("rejoin") then
+ 
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "MeepCity Commands";
+            Text = "Re-joining game...";
+            Duration = math.huge;
+        })
+
+        TeleportService:Teleport(game.PlaceId, Player)
+
+    end
+end)
+
+-- //'Loaded Notification'\\ --
+
+    if not success and glitch then
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "Ubicast Developer";
+            Text = "MeepCity Commands has errored, please contact Ubicast on Discord at Aleksandar#2880 with the error that you faced, press F9 to see the error message!";
+            Duration = math.huge;
+            Button1 = "OK";
+        })
+
+        TestService:Message("Code has errored, please contact Ubicast on discord at Aleksandar#2880 with the following message :")
+        warn(glitch)
+
+    elseif string.len(Prefix) ~= 1 then
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "Ubicast Developer";
+            Text = "MeepCity Commands will error, please try using a prefix that is long 1 character!";
+            Duration = math.huge;
+            Button1 = "OK";
+        })
+
+        return nil
+
+    else
+
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "Ubicast Developer";
+            Text = "MeepCity Commands have successfully loaded!";
+            Duration = math.huge;
+            Button1 = "OK";
+        })
+
+        TestService:Message("Successfully loaded MeepCity Commands! - Ubicast 2020")
+
+    end
+
+end)
+
+else
+
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "Ubicast Developer";
+        Text = "This game is not MeepCity, Cancelled execution.";
+        Duration = math.huge;
+        Button1 = "OK";
+    })
+
+    return nil
+
+end
